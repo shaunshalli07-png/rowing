@@ -7,29 +7,44 @@ const PLAN_START_ISO = '2026-06-29'; // Monday of the first (preseason) week in 
 const LS_LOGS = 'sub7.logs.v1';
 const LS_PROFILE = 'sub7.profile.v1';
 
+// Some hosting contexts (sandboxed iframes, private browsing) block localStorage
+// entirely and *throw* on access rather than just no-op. Fall back to an
+// in-memory store so the app still works for the session either way.
+const memoryStore = {};
+const safeStorage = {
+  get(key) {
+    try { return localStorage.getItem(key); } catch (e) { return Object.prototype.hasOwnProperty.call(memoryStore, key) ? memoryStore[key] : null; }
+  },
+  set(key, val) {
+    try { localStorage.setItem(key, val); } catch (e) { memoryStore[key] = val; }
+  },
+};
+let persistent = true;
+try { localStorage.setItem('sub7.probe', '1'); localStorage.removeItem('sub7.probe'); } catch (e) { persistent = false; }
+
 let logs = loadLogs();
 let profile = loadProfile();
 
 function loadLogs() {
   try {
-    const raw = localStorage.getItem(LS_LOGS);
+    const raw = safeStorage.get(LS_LOGS);
     if (raw) return JSON.parse(raw);
   } catch (e) { /* ignore corrupt storage */ }
   const seeded = {};
   for (const [key, val] of Object.entries(SEED_LOGS)) seeded[key] = { status: 'unlogged', ...val };
-  localStorage.setItem(LS_LOGS, JSON.stringify(seeded));
+  safeStorage.set(LS_LOGS, JSON.stringify(seeded));
   return seeded;
 }
-function saveLogs() { localStorage.setItem(LS_LOGS, JSON.stringify(logs)); }
+function saveLogs() { safeStorage.set(LS_LOGS, JSON.stringify(logs)); }
 
 function loadProfile() {
   try {
-    const raw = localStorage.getItem(LS_PROFILE);
+    const raw = safeStorage.get(LS_PROFILE);
     if (raw) return JSON.parse(raw);
   } catch (e) { /* ignore */ }
   return { age: null, hrMax: null, hrRest: null };
 }
-function saveProfile() { localStorage.setItem(LS_PROFILE, JSON.stringify(profile)); }
+function saveProfile() { safeStorage.set(LS_PROFILE, JSON.stringify(profile)); }
 
 function effectiveProfile() {
   const hrMax = profile.hrMax || estimateHRMax(profile.age) || null;
@@ -363,5 +378,12 @@ function renderAll() {
   renderWeeks();
 }
 
+function renderStorageNotice() {
+  if (persistent) return;
+  const el = document.querySelector('.site-footer .wrap');
+  if (el) el.innerHTML = '⚠️ This preview can\'t persist to local storage (sandboxed context) — logs will reset on reload. Open the deployed site directly to keep your data.';
+}
+
 renderMotivation();
 renderAll();
+renderStorageNotice();
