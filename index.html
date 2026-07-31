@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sub-7 — Trinity 26 Erg Tracker</title>
+<meta name="description" content="Adaptive tracker for the Trinity '26 11-week erg training block, targeting a sub-7:00 2k." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚣</text></svg>" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-emoji" aria-hidden="true">🚣</span>
+      <div>
+        <h1>Sub-7 Erg Tracker</h1>
+        <p class="subtitle">Trinity '26 · 11-week block · goal: <strong>2k under 7:00</strong></p>
+      </div>
+    </div>
+    <div id="goal-stat" class="goal-stat" aria-live="polite"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="card mode-banner" id="mode-banner" aria-live="polite"></section>
+
+  <section class="grid-2">
+    <div class="card" id="next-session-card"></div>
+    <div class="card" id="log-card"></div>
+  </section>
+
+  <section class="card" id="insights-card"></section>
+
+  <details class="card" id="profile-card" open>
+    <summary>Your HR profile (used to calculate zones)</summary>
+    <div id="profile-body"></div>
+  </details>
+
+  <section class="plan-section">
+    <div class="plan-header">
+      <h2>The plan</h2>
+      <p class="muted">Click any Erg session to log it. Optional Wednesday pieces are marked — skipping them is never a miss.</p>
+    </div>
+    <div id="weeks"></div>
+  </section>
+
+  <section class="motivation-section" id="motivation">
+    <h2>Motivation board</h2>
+    <p class="muted">Oxford University Boat Club &amp; Exeter College Boat Club — for the days the erg screen isn't enough on its own.</p>
+    <div class="motivation-grid" id="motivation-grid"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">Built from your Trinity '26 schedule. Everything is stored locally in this browser (no server, no account).</div>
+</footer>
+
+<template id="tpl-log-form">
+  <form class="log-form">
+    <div class="log-form-row">
+      <label>Status
+        <select name="status">
+          <option value="unlogged">Not logged</option>
+          <option value="completed">Completed as planned</option>
+          <option value="partial">Partial</option>
+          <option value="skipped">Skipped</option>
+          <option value="incomplete">Started, didn't finish</option>
+        </select>
+      </label>
+      <label class="only-partial">Actual minutes
+        <input type="number" name="actualMinutes" min="0" step="1" />
+      </label>
+    </div>
+    <div class="log-form-row">
+      <label>Avg split /500m
+        <input type="text" name="avgSplit500" placeholder="e.g. 2:05.0" />
+      </label>
+      <label>Avg HR
+        <input type="number" name="avgHR" min="60" max="220" placeholder="bpm" />
+      </label>
+      <label>RPE (1–10)
+        <input type="number" name="rpe" min="1" max="10" />
+      </label>
+    </div>
+    <div class="log-form-row only-test">
+      <label>2k time (test days only)
+        <input type="text" name="testTime" placeholder="e.g. 7:04.2" />
+      </label>
+    </div>
+    <div class="log-form-row">
+      <label class="grow">Note
+        <input type="text" name="note" placeholder="How did it feel?" />
+      </label>
+    </div>
+    <div class="log-form-actions">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-ghost" data-action="cancel">Cancel</button>
+    </div>
+  </form>
+</template>
+
+<script src="data.js"></script>
+<script src="calc.js"></script>
+<script src="motivation.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
